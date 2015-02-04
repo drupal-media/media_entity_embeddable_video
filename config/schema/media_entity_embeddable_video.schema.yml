@@ -1,0 +1,15 @@
+media_entity_embeddable_video.settings:
+  type: mapping
+  label: 'Media entity embeddable video settings'
+  mapping:
+    local_images:
+      type: string
+      label: 'Base folder for tuhmbnails'
+
+media_entity.bundle.type.embeddable_video:
+  type: mapping
+  label: 'Embeddable video type configuration'
+  mapping:
+    source_field:
+      type: string
+      label: 'Field with embed code/URL'
