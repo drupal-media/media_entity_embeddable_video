@@ -17,10 +17,44 @@ use Drupal\media_entity_embeddable_video\VideoProviderInterface;
  *   label = @Translation("AOL (5min) playlist"),
  *   description = @Translation("Provides embedding support for AOL playlists."),
  *   regular_expressions = {
- *     "@http://pshared.5min.com/Scripts/PlayerSeed\.js\?([^"\']*)videoGroupID=(?<id>[0-9]+)([^"\']*)@i",
+ *     "@http://pshared.5min.com/Scripts/PlayerSeed\.js\?([^""']*)videoGroupID=(?<id>[0-9]+)([^""']*)@i"
  *   }
  * )
  */
 class Aol extends PluginBase implements VideoProviderInterface {
 
+  /**
+   * {@inheritdoc}
+   */
+  public function id() {
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function name() {
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function videoId() {
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function thumbnailURI() {
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function matchEmbed($embed_code) {
+
+  }
 }
