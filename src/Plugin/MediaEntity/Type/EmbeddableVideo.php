@@ -104,44 +104,6 @@ class EmbeddableVideo extends PluginBase implements MediaTypeInterface, Containe
   }
 
   /**
-   * Returns list of video sources with all needed data.
-   *
-   * @var array
-   */
-  protected function sourcesDefinition() {
-    return array(
-      'youtube' => array(
-        'name' => $this->t('Youtube'),
-        'regex' => array(
-          '@(http|https)://www\.youtube(-nocookie)?\.com/embed/(?<id>[a-z0-9_-]+)@i',
-          '@(http|https)://www\.youtube(-nocookie)?\.com/v/(?<id>[a-z0-9_-]+)@i',
-          '@//www\.youtube(-nocookie)?\.com/embed/(?<id>[a-z0-9_-]+)@i',
-          '@//www\.youtube(-nocookie)?\.com/v/(?<id>[a-z0-9_-]+)@i',
-        ),
-      ),
-      'grabnetworks' => array(
-        'name' => $this->t('Grab networks'),
-        'regex' => array(
-          '@http://player\.grabnetworks\.com/swf/GrabOSMFPlayer\.swf\?id=(?<id>[0-9]+)&content=v([a-f0-9]+)@i',
-          '@http://player\.grabnetworks\.com/js/Player\.js\?([^"\']*)id=(?<id>[0-9]+)([^"\']*)&content=(v?[a-f0-9]+)([^"\']*)@i',
-        ),
-      ),
-      '5min' => array(
-        'name' => $this->t('5min video'),
-        'regex' => array(
-          '@http://pshared.5min.com/Scripts/PlayerSeed\.js\?([^"\']*)playList=(?<id>[0-9]+)([^"\']*)@i',
-        ),
-      ),
-      '5min_playlist' => array(
-        'name' => $this->t('5min playlist'),
-        'regex' => array(
-          '@http://pshared.5min.com/Scripts/PlayerSeed\.js\?([^"\']*)videoGroupID=(?<id>[0-9]+)([^"\']*)@i',
-        ),
-      ),
-    );
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function providedFields() {

@@ -10,12 +10,18 @@ use Drupal\Component\Plugin\PluginBase;
 use Drupal\media_entity_embeddable_video\VideoProviderInterface;
 
 /**
- * Provides media type plugin for embedded videos.
+ * Provides embedding support for YouTube videos.
  *
- * @MediaType(
- *   id = "embeddable_video",
- *   label = @Translation("Embeddable video"),
- *   description = @Translation("Provides business logic and metadata for videos.")
+ * @EmbeddableVideoProvider(
+ *   id = "youtube",
+ *   label = @Translation("YouTube"),
+ *   description = @Translation("Provides embedding support for YouTube videos."),
+ *   regular_expressions = {
+ *     "@(http|https)://www\.youtube(-nocookie)?\.com/embed/(?<id>[a-z0-9_-]+)@i",
+ *     "@(http|https)://www\.youtube(-nocookie)?\.com/v/(?<id>[a-z0-9_-]+)@i",
+ *     "@//www\.youtube(-nocookie)?\.com/embed/(?<id>[a-z0-9_-]+)@i",
+ *     "@//www\.youtube(-nocookie)?\.com/v/(?<id>[a-z0-9_-]+)@i"
+ *   }
  * )
  */
 class YouTube extends PluginBase implements VideoProviderInterface {

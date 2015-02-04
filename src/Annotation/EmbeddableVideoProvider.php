@@ -43,4 +43,11 @@ class EmbeddableVideoProvider extends Plugin {
    */
   public $description = '';
 
+  /**
+   * List of regular expressions that match embed codes and URLs of videos.
+   *
+   * @var array
+   */
+  public $regular_expressions = [];
+
 }
