@@ -5,6 +5,9 @@ media_entity_embeddable_video.settings:
     local_images:
       type: string
       label: 'Base folder for tuhmbnails'
+    grab_from:
+      type: string
+      label: 'From string used by Grab (sent with API requests)'
 
 media_entity.bundle.type.embeddable_video:
   type: mapping
