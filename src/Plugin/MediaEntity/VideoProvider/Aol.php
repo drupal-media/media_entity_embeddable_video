@@ -4,9 +4,9 @@
  * Contains \Drupal\media_entity_embeddable_video\Plugin\MediaEntity\VideoProvider\Aol.
  */
 
-namespace Drupal\media_entity_embeddable_video\Plugin\MediaEntity\Type;
+namespace Drupal\media_entity_embeddable_video\Plugin\MediaEntity\VideoProvider;
 
-use Drupal\Component\Plugin\PluginBase;
+use Drupal\media_entity_embeddable_video\VideoProviderBase;
 use Drupal\media_entity_embeddable_video\VideoProviderInterface;
 
 /**
@@ -21,28 +21,7 @@ use Drupal\media_entity_embeddable_video\VideoProviderInterface;
  *   }
  * )
  */
-class Aol extends PluginBase implements VideoProviderInterface {
-
-  /**
-   * {@inheritdoc}
-   */
-  public function id() {
-
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function name() {
-
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function videoId() {
-
-  }
+class Aol extends VideoProviderBase implements VideoProviderInterface {
 
   /**
    * {@inheritdoc}
