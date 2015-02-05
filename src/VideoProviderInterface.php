@@ -46,15 +46,4 @@ interface VideoProviderInterface extends PluginInspectionInterface {
    */
   public function thumbnailURI();
 
-  /**
-   * Matches embed code to provider and returns provider object.
-   *
-   * @param string $embed_code
-   *   Video embed code.
-   *
-   * @return VideoProviderInterface|false
-   *   Video provider object or FALSE if no match.
-   */
-  public static function matchEmbed($embed_code);
-
 }

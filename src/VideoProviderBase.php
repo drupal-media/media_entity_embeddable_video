@@ -7,11 +7,14 @@
 namespace Drupal\media_entity_embeddable_video;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\Http\Client;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Base implementation for video providers.
  */
-abstract class VideoProviderBase extends PluginBase implements VideoProviderInterface {
+abstract class VideoProviderBase extends PluginBase implements VideoProviderInterface, ContainerFactoryPluginInterface {
 
   /**
    * Video embed code/URL.
@@ -28,10 +31,18 @@ abstract class VideoProviderBase extends PluginBase implements VideoProviderInte
   protected $matches;
 
   /**
+   * HTTP client interface.
+   *
+   * @var \Drupal\Core\Http\Client
+   */
+  protected $httpClient;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $http_client) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->httpClient = $http_client;
 
     $this->embedCode = $configuration['embed_code'];
     foreach ($this->pluginDefinition['regular_expressions'] as $regular_expression) {
@@ -39,6 +50,18 @@ abstract class VideoProviderBase extends PluginBase implements VideoProviderInte
         break;
       }
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('http_client')
+    );
   }
 
   /**

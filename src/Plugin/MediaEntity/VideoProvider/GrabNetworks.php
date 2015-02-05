@@ -31,10 +31,4 @@ class GrabNetworks extends VideoProviderBase implements VideoProviderInterface {
 
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public static function matchEmbed($embed_code) {
-
-  }
 }
