@@ -41,8 +41,8 @@ interface VideoProviderInterface extends PluginInspectionInterface {
   /**
    * Video thumbnail URI.
    *
-   * @return string
-   *   Video thumbnail.
+   * @return string|false
+   *   Video thumbnail URI or FALSE if couldn't find one.
    */
   public function thumbnailURI();
 
