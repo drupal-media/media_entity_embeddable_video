@@ -17,6 +17,13 @@ use Drupal\Core\Plugin\DefaultPluginManager;
 class VideoProviderManager extends DefaultPluginManager {
 
   /**
+   * Static cache of embed code - plugin pairs.
+   *
+   * @var array
+   */
+  protected $matches = [];
+
+  /**
    * Constructs a new MediaTypeManager.
    *
    * @param \Traversable $namespaces
@@ -32,6 +39,31 @@ class VideoProviderManager extends DefaultPluginManager {
 
     $this->alterInfo('media_entity_embeddable_video_provider_info');
     $this->setCacheBackend($cache_backend, 'media_entity_embeddable_video_provider_plugins');
+  }
+
+  /**
+   * Gets provider based on embed code.
+   *
+   * @param $embed_code
+   *   Embed code or URL of the video.
+   * @return \Drupal\media_entity_embeddable_video\VideoProviderInterface|false
+   *   Video provider plugin or FALSE if none found.
+   */
+  public function getProviderByEmbedCode($embed_code) {
+    $hash = md5($embed_code);
+
+    if (empty($this->matches[$hash])) {
+      $this->matches[$hash] = FALSE;
+      foreach ($this->getDefinitions() as $id => $definition) {
+        foreach ($definition['regular_expressions'] as $reqular_expr) {
+          if (preg_match($reqular_expr, $embed_code)) {
+            $this->matches[$hash] = $this->createInstance($id, ['embed_code' => $embed_code]);
+          }
+        }
+      }
+    }
+
+    return $this->matches[$hash];
   }
 
 }

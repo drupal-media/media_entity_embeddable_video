@@ -234,15 +234,7 @@ class EmbeddableVideo extends PluginBase implements MediaTypeInterface, Containe
    */
   protected function matchProvider(MediaInterface $media) {
     $source_field = $this->configuration['source_field'];
-    foreach ($this->videoProviders->getDefinitions() as $definition) {
-      /** @var \Drupal\media_entity_embeddable_video\VideoProviderInterface $video_provider */
-      $video_provider = $this->videoProviders->createInstance($definition['id'], []);
-      $property_name = $media->{$source_field}->first()->mainPropertyName();
-      if ($video_provider->matchEmbed($media->{$source_field}->{$property_name})) {
-        return $video_provider;
-      }
-    }
-
-    return FALSE;
+    $property_name = $media->{$source_field}->first()->mainPropertyName();
+    return $this->videoProviders->getProviderByEmbedCode($media->{$source_field}->{$property_name});
   }
 }
