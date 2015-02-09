@@ -6,9 +6,12 @@
 
 namespace Drupal\media_entity_embeddable_video\Plugin\MediaEntity\VideoProvider;
 
+use Drupal\Core\Config\Config;
+use Drupal\Core\Http\Client;
 use Drupal\Core\Url;
 use Drupal\media_entity_embeddable_video\VideoProviderBase;
 use Drupal\media_entity_embeddable_video\VideoProviderInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides embedding support for AOL videos.
@@ -25,6 +28,35 @@ use Drupal\media_entity_embeddable_video\VideoProviderInterface;
 class Aol extends VideoProviderBase implements VideoProviderInterface {
 
   /**
+   * Config object.
+   *
+   * @var \Drupal\Core\Config\Config
+   */
+  protected $config;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $http_client, Config $config) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $http_client);
+    $this->config = $config;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('http_client'),
+      $container->get('config.factory')->get('media_entity_embeddable_video.settings')
+    );
+  }
+
+
+  /**
    * {@inheritdoc}
    */
   public function thumbnailURI() {
@@ -33,7 +65,7 @@ class Aol extends VideoProviderBase implements VideoProviderInterface {
         'http://api.5min.com/video/' . $this->matches['id'] . '/info.json',
         [
           'query' => [
-            'sid' => '1304',
+            'sid' => $this->config->get('aol_sid'),
             'multiple_thumbnails' => 'true',
             'restriction' => 'no_html',
           ]
