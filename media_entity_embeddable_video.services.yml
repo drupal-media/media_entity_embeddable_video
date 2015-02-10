@@ -1,0 +1,4 @@
+services:
+  plugin.manager.media_entity_embeddable_video.provider:
+    class: Drupal\media_entity_embeddable_video\VideoProviderManager
+    parent: default_plugin_manager

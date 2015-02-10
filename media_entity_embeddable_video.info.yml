@@ -1,0 +1,7 @@
+name: Media entity embeddable video
+description: 'Media entity embeddable vidoe.'
+type: module
+package: Media
+core: 8.x
+dependencies:
+  - media_entity
