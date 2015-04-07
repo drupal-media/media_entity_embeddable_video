@@ -8,6 +8,9 @@ media_entity_embeddable_video.settings:
     grab_from:
       type: string
       label: 'From string used by Grab (sent with API requests)'
+    grab_id:
+      type: string
+      label: 'ID to be used when building Grab embed code'
     aol_sid:
       type: string
       label: 'SID used by AOL (sent with API requests)'

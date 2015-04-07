@@ -21,8 +21,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   label = @Translation("Grab networks"),
  *   description = @Translation("Provides embedding support for Grab videos."),
  *   regular_expressions = {
- *     "@http://player\.grabnetworks\.com/swf/GrabOSMFPlayer\.swf\?id=(?<id>[0-9]+)&content=v([a-f0-9]+)@i",
- *     "@http://player\.grabnetworks\.com/js/Player\.js\?([^""']*)id=(?<id>[0-9]+)([^""']*)&content=(v?[a-f0-9]+)([^""']*)@i"
+ *     "@http://player\.grabnetworks\.com/swf/GrabOSMFPlayer\.swf\?id=(?<publisher_id>[0-9]+)&content=v(?<id>[a-f0-9]+)@i",
+ *     "@http://player\.grabnetworks\.com/js/Player\.js\?([^""']*)id=(?<publisher_id>[0-9]+)([^""']*)&content=(?<id>v?[a-f0-9]+)([^""']*)@i"
  *   }
  * )
  */
@@ -59,6 +59,17 @@ class GrabNetworks extends VideoProviderBase implements VideoProviderInterface {
   /**
    * {@inheritdoc}
    */
+  public function defaultConfiguration() {
+    return [
+      'width' => '640',
+      'height' => '480',
+    ];
+  }
+
+
+  /**
+   * {@inheritdoc}
+   */
   public function thumbnailURI() {
     $response = $this->httpClient->get(
       Url::fromUri(
@@ -72,6 +83,28 @@ class GrabNetworks extends VideoProviderBase implements VideoProviderInterface {
     }
 
     return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function render() {
+    $query = [
+      'id' => $this->config->get('grab_id') ? : $this->matches['publisher_id'],
+      'content' => $this->matches['content'],
+      'width' => $this->configuration['width'],
+      'height' => $this->configuration['height'],
+      'tgt' => 'grabnetworks',
+    ];
+
+    return [
+      '#type' => 'html_tag',
+      '#tag' => 'script',
+      '#attributes' => [
+        'type' => 'text/javascript',
+        'src' => Url::fromUri('http://player.grabnetworks.com/js/Player.js', ['query' => $query])->toString(),
+      ],
+    ];
   }
 
 }

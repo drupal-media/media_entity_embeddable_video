@@ -85,4 +85,33 @@ abstract class VideoProviderBase extends PluginBase implements VideoProviderInte
     return empty($this->matches['id']) ? NULL : $this->matches['id'];
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getConfiguration() {
+    return $this->configuration;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setConfiguration(array $configuration) {
+    $configuration += $this->defaultConfiguration();
+    $this->configuration = $configuration;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    return [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function calculateDependencies() {
+    return [];
+  }
+
 }

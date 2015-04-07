@@ -1,3 +1,4 @@
 local_images: 'public://video-thumbnails'
 grab_from: ''
+grab_id: ''
 aol_sid: ''

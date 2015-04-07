@@ -21,7 +21,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   label = @Translation("AOL (5min) playlist"),
  *   description = @Translation("Provides embedding support for AOL playlists."),
  *   regular_expressions = {
- *     "@http://pshared.5min.com/Scripts/PlayerSeed\.js\?([^""']*)videoGroupID=(?<id>[0-9]+)([^""']*)@i"
+ *     "@http://pshared.5min.com/Scripts/PlayerSeed\.js\?([^""']*)sid=(?<sid>[0-9]+)([^""']*)videoGroupID=(?<id>[0-9]+)([^""']*)@i"
  *   }
  * )
  */
@@ -58,6 +58,16 @@ class Aol extends VideoProviderBase implements VideoProviderInterface {
   /**
    * {@inheritdoc}
    */
+  public function defaultConfiguration() {
+    return [
+      'width' => '640',
+      'height' => '480',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function thumbnailURI() {
     $response = $this->httpClient->get(
       Url::fromUri(
@@ -78,6 +88,27 @@ class Aol extends VideoProviderBase implements VideoProviderInterface {
     }
 
     return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function render() {
+    $query = [
+      'videoGroupID' => $this->matches['id'],
+      'width' => $this->configuration['width'],
+      'height' => $this->configuration['height'],
+      'sid' => $this->config->get('aol_sid') ? : $this->matches['sid']
+    ];
+
+    return [
+      '#type' => 'html_tag',
+      '#tag' => 'script',
+      '#attributes' => [
+        'type' => 'text/javascript',
+        'src' => Url::fromUri('http://pshared.5min.com/Scripts/PlayerSeed.js', ['query' => $query])->toString(),
+      ],
+    ];
   }
 
 }

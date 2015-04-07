@@ -21,7 +21,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   label = @Translation("AOL (5min)"),
  *   description = @Translation("Provides embedding support for AOL videos."),
  *   regular_expressions = {
- *     "@http://pshared.5min.com/Scripts/PlayerSeed\.js\?([^""']*)playList=(?<id>[0-9]+)([^""']*)@i"
+ *     "@http://pshared.5min.com/Scripts/PlayerSeed\.js\?([^""']*)sid=(?<sid>[0-9]+)([^""']*)playList=(?<id>[0-9]+)([^""']*)@i"
  *   }
  * )
  */
@@ -55,6 +55,15 @@ class Aol extends VideoProviderBase implements VideoProviderInterface {
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    return [
+      'width' => '640',
+      'height' => '480',
+    ];
+  }
 
   /**
    * {@inheritdoc}
@@ -78,6 +87,27 @@ class Aol extends VideoProviderBase implements VideoProviderInterface {
     }
 
     return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function render() {
+    $query = [
+      'playList' => $this->matches['id'],
+      'width' => $this->configuration['width'],
+      'height' => $this->configuration['height'],
+      'sid' => $this->config->get('aol_sid') ? : $this->matches['sid']
+    ];
+
+    return [
+      '#type' => 'html_tag',
+      '#tag' => 'script',
+      '#attributes' => [
+        'type' => 'text/javascript',
+        'src' => Url::fromUri('http://pshared.5min.com/Scripts/PlayerSeed.js', ['query' => $query])->toString(),
+      ],
+    ];
   }
 
 }

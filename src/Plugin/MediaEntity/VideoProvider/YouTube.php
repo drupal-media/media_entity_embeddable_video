@@ -18,14 +18,27 @@ use GuzzleHttp\Exception\ClientException;
  *   label = @Translation("YouTube"),
  *   description = @Translation("Provides embedding support for YouTube videos."),
  *   regular_expressions = {
- *     "@(http|https)://www\.youtube(-nocookie)?\.com/embed/(?<id>[a-z0-9_-]+)@i",
- *     "@(http|https)://www\.youtube(-nocookie)?\.com/v/(?<id>[a-z0-9_-]+)@i",
- *     "@//www\.youtube(-nocookie)?\.com/embed/(?<id>[a-z0-9_-]+)@i",
- *     "@//www\.youtube(-nocookie)?\.com/v/(?<id>[a-z0-9_-]+)@i"
+ *     "@(?<protocol>http|https)://www\.youtube(?<cookie>-nocookie)?\.com/embed/(?<id>[a-z0-9_-]+)@i",
+ *     "@(?<protocol>http|https)://www\.youtube(?<cookie>-nocookie)?\.com/v/(?<id>[a-z0-9_-]+)@i",
+ *     "@(?<protocol>http|https)://www\.youtube(?<cookie>-nocookie)?\.com/watch\?v=(?<id>[a-z0-9_-]+)@i",
+ *     "@//www\.youtube(?<cookie>-nocookie)?\.com/embed/(?<id>[a-z0-9_-]+)@i",
+ *     "@//www\.youtube(?<cookie>-nocookie)?\.com/v/(?<id>[a-z0-9_-]+)@i",
+ *     "@//www\.youtube(?<cookie>-nocookie)?\.com/watch\?v=(?<id>[a-z0-9_-]+)@i"
  *   }
  * )
  */
 class YouTube extends VideoProviderBase implements VideoProviderInterface {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    return [
+      'video_quality' => 'HD720',
+      'allowfullscreen' => TRUE,
+      'autoplay' => FALSE,
+    ];
+  }
 
   /**
    * {@inheritdoc}
@@ -48,6 +61,46 @@ class YouTube extends VideoProviderBase implements VideoProviderInterface {
     }
 
     return $maxres_thumb;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function render() {
+    $args = [];
+    $src = '';
+
+    if (!empty($this->matches['protocol'])) {
+      $src = $this->matches['protocol'] . ':';
+    }
+
+    $src .= '//www.youtube' . $this->matches['cookie'] . '.com/embed/' . $this->matches['id'];
+
+    // Show suggested videos when the video finishes?
+    if (preg_match('/rel=0/i', $this->configuration['embed_code'])) {
+      $args['rel'] = '0';
+    }
+
+    $args['VQ'] = $this->configuration['video_quality'];
+    if (!empty($this->configuration['allowfullscreen'])) {
+      $args['allowfullscreen'] = 'true';
+    }
+    if (!empty($this->configuration['autoplay'])) {
+      $args['autoplay'] = 'true';
+    }
+
+    $src .= '?' . implode('&', array_walk(
+      $args,
+      function (&$item, $key) {$item = $key . '=' . $item;}
+    ));
+
+    return [
+      '#type' => 'html_tag',
+      '#tag' => 'iframe',
+      '#attributes' => [
+        'src' => $src,
+      ],
+    ];
   }
 
 }
