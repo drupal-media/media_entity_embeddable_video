@@ -184,7 +184,7 @@ class EmbeddableVideo extends PluginBase implements MediaTypeInterface, Containe
   public function settingsForm(MediaBundleInterface $bundle) {
     $form = array();
     $options = array();
-    $allowed_field_types = array('text', 'text_long', 'link');
+    $allowed_field_types = array('text', 'text_long', 'string', 'string_long', 'link');
     foreach (\Drupal::entityManager()->getFieldDefinitions('media', $bundle->id()) as $field_name => $field) {
       if (in_array($field->getType(), $allowed_field_types)) {
         $options[$field_name] = $field->getLabel();
@@ -225,14 +225,9 @@ class EmbeddableVideo extends PluginBase implements MediaTypeInterface, Containe
   }
 
   /**
-   * Matches video provider.
-   *
-   * @param MediaInterface $media
-   *   Media object.
-   * @return \Drupal\media_entity_embeddable_video\VideoProviderInterface|bool
-   *   Video provider or FALSE if no match.
+   * {@inheritdoc}
    */
-  protected function matchProvider(MediaInterface $media) {
+  public function matchProvider(MediaInterface $media) {
     $source_field = $this->configuration['source_field'];
     $property_name = $media->{$source_field}->first()->mainPropertyName();
     return $this->videoProviders->getProviderByEmbedCode($media->{$source_field}->{$property_name});
