@@ -42,6 +42,7 @@ abstract class VideoProviderBase extends PluginBase implements VideoProviderInte
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $http_client) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->setConfiguration($configuration);
     $this->httpClient = $http_client;
 
     $this->embedCode = $configuration['embed_code'];

@@ -14,6 +14,9 @@ media_entity_embeddable_video.settings:
     aol_sid:
       type: string
       label: 'SID used by AOL (sent with API requests)'
+    wochit_progn:
+      type: string
+      label: 'Publisher information used by Wochit ("progn" argument in embed code)'
 
 media_entity.bundle.type.embeddable_video:
   type: mapping
