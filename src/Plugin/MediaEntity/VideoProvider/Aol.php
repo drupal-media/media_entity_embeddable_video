@@ -7,7 +7,7 @@
 namespace Drupal\media_entity_embeddable_video\Plugin\MediaEntity\VideoProvider;
 
 use Drupal\Core\Config\Config;
-use Drupal\Core\Http\Client;
+use GuzzleHttp\Client;
 use Drupal\Core\Url;
 use Drupal\media_entity_embeddable_video\VideoProviderBase;
 use Drupal\media_entity_embeddable_video\VideoProviderInterface;

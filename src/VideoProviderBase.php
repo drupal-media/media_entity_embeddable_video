@@ -7,7 +7,7 @@
 namespace Drupal\media_entity_embeddable_video;
 
 use Drupal\Component\Plugin\PluginBase;
-use Drupal\Core\Http\Client;
+use GuzzleHttp\Client;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -33,7 +33,7 @@ abstract class VideoProviderBase extends PluginBase implements VideoProviderInte
   /**
    * HTTP client interface.
    *
-   * @var \Drupal\Core\Http\Client
+   * @var \GuzzleHttp\Client
    */
   protected $httpClient;
 
