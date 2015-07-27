@@ -8,7 +8,7 @@ namespace Drupal\media_entity_embeddable_video\Plugin\MediaEntity\Type;
 
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Http\Client;
+use GuzzleHttp\Client;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\media_entity\MediaBundleInterface;
@@ -48,7 +48,7 @@ class EmbeddableVideo extends PluginBase implements MediaTypeInterface, Containe
   /**
    * HTTP client service.
    *
-   * @var \Drupal\Core\Http\Client
+   * @var \GuzzleHttp\Client
    */
   protected $httpClient;
 
@@ -82,7 +82,7 @@ class EmbeddableVideo extends PluginBase implements MediaTypeInterface, Containe
    *   The plugin_id for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\Core\Http\Client $http_client
+   * @param \GuzzleHttp\Client $http_client
    *   Http client.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   Config factory service.
