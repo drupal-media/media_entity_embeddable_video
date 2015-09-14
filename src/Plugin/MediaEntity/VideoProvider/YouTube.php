@@ -47,7 +47,7 @@ class YouTube extends VideoProviderBase implements VideoProviderInterface {
     $maxres_thumb = 'http://img.youtube.com/vi/' . $this->matches['id'] . '/maxresdefault.jpg';
 
     try {
-      /** @var \GuzzleHttp\Message\ResponseInterface $response */
+      /** @var \GuzzleHttp\Client $response */
       $this->httpClient->head($maxres_thumb);
     } catch (ClientException $e) {
       $size = 0;
