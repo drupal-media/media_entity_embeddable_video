@@ -49,7 +49,8 @@ class YouTube extends VideoProviderBase implements VideoProviderInterface {
     try {
       /** @var \GuzzleHttp\Client $response */
       $this->httpClient->head($maxres_thumb);
-    } catch (ClientException $e) {
+    }
+    catch (ClientException $e) {
       $size = 0;
       $xml = simplexml_load_file('http://gdata.youtube.com/feeds/api/videos/' . $this->matches['id']);
       foreach ($xml->children('media', TRUE)->group->thumbnail as $thumb) {
