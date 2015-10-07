@@ -232,4 +232,9 @@ class EmbeddableVideo extends PluginBase implements MediaTypeInterface, Containe
     $property_name = $media->{$source_field}->first()->mainPropertyName();
     return $this->videoProviders->getProviderByEmbedCode($media->{$source_field}->{$property_name});
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function attachConstraints(MediaInterface $media) {}
 }
