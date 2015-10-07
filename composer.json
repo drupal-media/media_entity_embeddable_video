@@ -1,0 +1,14 @@
+{
+  "name": "drupal/media_entity_embeddable_video",
+  "type": "drupal-module",
+  "description": "Media entity embeddable video",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "http://drupal.org/project/media_entity_embeddable_video",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "http://drupal.org/project/issues/media_entity_embeddable_video",
+    "source": "http://cgit.drupalcode.org/media_entity_embeddable_video"
+  },
+  "require": { }
+}
