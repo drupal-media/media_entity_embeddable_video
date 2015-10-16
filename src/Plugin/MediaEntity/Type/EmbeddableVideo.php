@@ -7,7 +7,10 @@
 namespace Drupal\media_entity_embeddable_video\Plugin\MediaEntity\Type;
 
 use Drupal\Component\Plugin\PluginBase;
-use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\Config;
+use Drupal\Core\Entity\EntityManager;
+use Drupal\media_entity\MediaTypeBase;
+use Drupal\media_entity_embeddable_video\EmbeddableVideoTypeInterface;
 use GuzzleHttp\Client;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -28,8 +31,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   description = @Translation("Provides business logic and metadata for videos.")
  * )
  */
-class EmbeddableVideo extends PluginBase implements MediaTypeInterface, ContainerFactoryPluginInterface {
-  use StringTranslationTrait;
+class EmbeddableVideo extends MediaTypeBase implements EmbeddableVideoTypeInterface {
 
   /**
    * Plugin label.
@@ -37,13 +39,6 @@ class EmbeddableVideo extends PluginBase implements MediaTypeInterface, Containe
    * @var string
    */
   protected $label;
-
-  /**
-   * Config factory service.
-   *
-   * @var \Drupal\Core\Config\ConfigFactoryInterface
-   */
-  protected $configFactory;
 
   /**
    * HTTP client service.
@@ -67,8 +62,9 @@ class EmbeddableVideo extends PluginBase implements MediaTypeInterface, Containe
       $configuration,
       $plugin_id,
       $plugin_definition,
+      $container->get('entity.manager'),
+      $container->get('config.factory')->get('media_entity_embeddable_video.settings'),
       $container->get('http_client'),
-      $container->get('config.factory'),
       $container->get('plugin.manager.media_entity_embeddable_video.provider')
     );
   }
@@ -82,16 +78,17 @@ class EmbeddableVideo extends PluginBase implements MediaTypeInterface, Containe
    *   The plugin_id for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
+   * @param \Drupal\Core\Entity\EntityManager $entity_manager
+   *   Entity manager service.
+   * @param \Drupal\Core\Config\Config $config
+   *   Media entity config object.
    * @param \GuzzleHttp\Client $http_client
    *   Http client.
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   Config factory service.
    * @param \Drupal\media_entity_embeddable_video\VideoProviderManager $video_providers
    *   Video provider plugin manager.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $http_client, ConfigFactoryInterface $config_factory, VideoProviderManager $video_providers) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->configFactory = $config_factory;
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityManager $entity_manager, Config $config, Client $http_client, VideoProviderManager $video_providers) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_manager, $config);
     $this->httpClient = $http_client;
     $this->videoProviders = $video_providers;
   }
@@ -155,7 +152,7 @@ class EmbeddableVideo extends PluginBase implements MediaTypeInterface, Containe
    *   URI of local copy of thumbnail.
    */
   protected function localThumbURI(VideoProviderInterface $provider) {
-    return $this->configFactory->get('pub_media.settings')->get('local_images') . '/' . $provider->id() . '_' . $provider->videoId() . '.jpg';
+    return $this->configuration->get('local_images') . '/' . $provider->id() . '_' . $provider->videoId() . '.jpg';
   }
 
   /**
@@ -205,12 +202,24 @@ class EmbeddableVideo extends PluginBase implements MediaTypeInterface, Containe
   /**
    * {@inheritdoc}
    */
-  public function validate(MediaInterface $media) {
-    if ($this->matchProvider($media)) {
-      return;
+  public function attachConstraints(MediaInterface $media) {
+    parent::attachConstraints($media);
+
+    $source_field_name = $this->configuration['source_field'];
+
+    // Get all providers regexes. Wehen we will be able to select providers
+    // per field we should handle that here.
+    $video_provider_definitions = $this->videoProviders->getDefinitions();
+    $regexes = [];
+    foreach ($video_provider_definitions as $definition) {
+      $regexes = array_merge($regexes, $definition['regular_expressions']);
     }
 
-    throw new MediaTypeException($this->configuration['source_field'], 'Not valid URL/embed code.');
+    foreach ($media->get($source_field_name) as &$embed_code) {
+      /** @var \Drupal\Core\TypedData\DataDefinitionInterface $typed_data */
+      $typed_data = $embed_code->getDataDefinition();
+      $typed_data->addConstraint('VideoProviderMatch', ['regular_expressions' => $regexes]);
+    }
   }
 
   /**
@@ -221,7 +230,7 @@ class EmbeddableVideo extends PluginBase implements MediaTypeInterface, Containe
       return $local_image;
     }
 
-    return $this->configFactory->get('media_entity.settings')->get('icon_base') . '/embeddable_video.png';
+    return $this->config->get('icon_base') . '/embeddable_video.png';
   }
 
   /**
@@ -232,4 +241,5 @@ class EmbeddableVideo extends PluginBase implements MediaTypeInterface, Containe
     $property_name = $media->{$source_field}->first()->mainPropertyName();
     return $this->videoProviders->getProviderByEmbedCode($media->{$source_field}->{$property_name});
   }
+
 }
