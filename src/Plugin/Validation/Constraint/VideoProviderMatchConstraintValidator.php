@@ -20,13 +20,14 @@ class VideoProviderMatchConstraintValidator extends ConstraintValidator {
    */
   public function validate($value, Constraint $constraint) {
     $regexes = $constraint->getRegularExpressionsOption();
-    if (empty($value)) {
+    $url = $value->getUrl()->toString();
+    if (empty($url)) {
       return;
     }
 
     $matches = [];
     foreach ($regexes as $reqular_expr) {
-      if (preg_match($reqular_expr, $value->value, $item_matches)) {
+      if (preg_match($reqular_expr, $url, $item_matches)) {
         $matches[] = $item_matches;
       }
     }
