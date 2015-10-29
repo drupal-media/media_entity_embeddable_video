@@ -26,7 +26,7 @@ class VideoProviderMatchConstraintTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['system', 'user', 'media_entity', 'media_entity_embeddable_video'];
+  public static $modules = ['system', 'user', 'text', 'media_entity', 'media_entity_embeddable_video'];
 
   /**
    * An array of regexes.
@@ -82,11 +82,9 @@ class VideoProviderMatchConstraintTest extends KernelTestBase {
         ->method('addViolation');
     }
 
+    $value = new TestMediaEntityEmbeddableVideoFieldItem($embed_code);
     $validator = new VideoProviderMatchConstraintValidator();
     $validator->initialize($execution_context);
-
-    $value = new \stdClass();
-    $value->value = $embed_code;
     $validator->validate($value, $constraint);
   }
 
@@ -99,10 +97,53 @@ class VideoProviderMatchConstraintTest extends KernelTestBase {
       'invalid URL' => ['https://drupal.org/project/media_entity_embeddable_video', 1],
       'invalid text' => ['I am a copy-cat and I copied this from the media entity twitter module', 1],
       'valid youtube URL' => ['https://www.youtube.com/watch?v=2YbmtzewgA4', 0],
+      'invalid youtube URL' => ['https://youtube.com/watch?v=2YbmtzewgA4', 1],
       'valid youtube embed code' => ['<iframe width="560" height="315" src="https://www.youtube.com/embed/2YbmtzewgA4" frameborder="0" allowfullscreen></iframe>', 0],
       'valid grab embed URL' => ['http://player.grabnetworks.com/swf/GrabOSMFPlayer.swf?id=1742439&content=v62605a8d0c9b2a58eb60fb078638afb4d0034bdb', 0],
       'valid aol embed URL' => ['http://pshared.5min.com/Scripts/PlayerSeed.js?sid=1304&playList=517307220&width=100&height=100&hasCompanion=false&shuffle=0', 0],
       'valid aol playlist embed URL' => ['http://pshared.5min.com/Scripts/PlayerSeed.js?sid=1304&width=620&height=439&sequential=1&shuffle=0&videoGroupID=150728', 0],
     ];
+  }
+}
+
+/**
+ * Mock class to test the testVideoProviderMatchConstraint.
+ */
+class TestMediaEntityEmbeddableVideoFieldItem {
+  /**
+   * @var string
+   *   The embed code string.
+   */
+  protected $embedCode;
+
+  /**
+   * MediaEntityEmbeddableVideoFieldItem constructor.
+   *
+   * @param string $embed_code
+   *   The embed code used for this test.
+   */
+  public function __construct($embed_code) {
+    $this->embedCode = $embed_code;
+  }
+
+  /**
+   * Mocks mainPropertyName() on \Drupal\Core\Field\FieldItemInterface.
+   */
+  public function mainPropertyName() {
+    return 'value';
+  }
+
+  /**
+   * Mocks get() on \Drupal\Core\Field\FieldItemInterface.
+   */
+  public function get() {
+    return $this;
+  }
+
+  /**
+   * Mocs getValue() on \Drupal\Core\TypedData\Type\StringInterface.
+   */
+  public function getValue() {
+    return $this->embedCode;
   }
 }

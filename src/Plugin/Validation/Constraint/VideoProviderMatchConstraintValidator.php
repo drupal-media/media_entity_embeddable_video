@@ -25,8 +25,11 @@ class VideoProviderMatchConstraintValidator extends ConstraintValidator {
     }
 
     $matches = [];
+    $main_property = $value->mainPropertyName();
+    $embed_code = $value->get($main_property)->getValue();
+
     foreach ($regexes as $reqular_expr) {
-      if (preg_match($reqular_expr, $value->value, $item_matches)) {
+      if (preg_match($reqular_expr, $embed_code, $item_matches)) {
         $matches[] = $item_matches;
       }
     }
