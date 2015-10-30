@@ -1,25 +1,21 @@
 # @file
 # .travis.yml - Drupal for Travis CI Integration
 #
-language: php
-sudo: false
+# Template provided by https://github.com/LionsAd/drupal_ti.
+#
+# Based for simpletest upon:
+#   https://github.com/sonnym/travis-ci-drupal-module-example
 
-cache:
-  directories:
-    - $HOME/.composer/cache
+language: php
+
+sudo: false
 
 php:
   - 5.5
   - 5.6
-  - 7
-  - hhvm
 
 matrix:
   fast_finish: true
-
-branches:
-  only:
-    - "8.x-1.x"
 
 env:
   global:
@@ -58,11 +54,18 @@ env:
     - DRUPAL_TI_BEHAT_YML="behat.yml.dist"
     # This is used to setup Xvfb.
     - DRUPAL_TI_BEHAT_SCREENSIZE_COLOR="1280x1024x16"
-    # The version of seleniumthat should be used.
-    - DRUPAL_TI_BEHAT_SELENIUM_VERSION="2.44"
+    # The version of selenium that should be used.
+    - DRUPAL_TI_BEHAT_SELENIUM_VERSION="2.48.2"
+    # Set DRUPAL_TI_BEHAT_DRIVER to "selenium" to use "firefox" or "chrome" here.
+    - DRUPAL_TI_BEHAT_DRIVER="phantomjs"
+    - DRUPAL_TI_BEHAT_BROWSER="firefox"
 
     # PHPUnit specific commandline arguments.
     - DRUPAL_TI_PHPUNIT_ARGS=""
+    # Specifying the phpunit-core src/ directory is useful when e.g. a vendor/
+    # directory is present in the module directory, which phpunit would then
+    # try to find tests in. This option is relative to $TRAVIS_BUILD_DIR.
+    #- DRUPAL_TI_PHPUNIT_CORE_SRC_DIRECTORY="./tests/src"
 
     # Code coverage via coveralls.io
     - DRUPAL_TI_COVERAGE="satooshi/php-coveralls:0.6.*"
@@ -81,6 +84,7 @@ env:
     #- DRUPAL_TI_RUNNERS="simpletest"
     #- DRUPAL_TI_RUNNERS="behat"
     #- DRUPAL_TI_RUNNERS="phpunit simpletest behat"
+    # Use phpunit-core to test modules with phpunit with Drupal 8 core.
     - DRUPAL_TI_RUNNERS="phpunit-core"
 
 mysql:
@@ -90,22 +94,21 @@ mysql:
 
 before_install:
   - composer self-update
+  # - cd ./tests
   - composer global require "lionsad/drupal_ti:1.*"
   - drupal-ti before_install
-  # Codesniffer and Coder
-  - composer global require "squizlabs/php_codesniffer:2.0.*@dev"
-  - composer global require drupal/coder:8.2.0-beta1
-  - ln -s ~/.composer/vendor/drupal/coder/coder_sniffer/Drupal ~/.composer/vendor/squizlabs/php_codesniffer/CodeSniffer/Standards/
 
 install:
   - drupal-ti install
 
 before_script:
-  - drupal-ti before_script
+  # - drupal-ti before_script
 
 script:
-  - drupal-ti --include .travis-phpcs.sh
-  - export SIMPLETEST_DB=mysql://root:@127.0.0.1/drupal_travis_db; drupal-ti script
+  - drupal-ti script
 
 after_script:
   - drupal-ti after_script
+
+notifications:
+  email: false

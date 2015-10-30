@@ -26,7 +26,7 @@ class VideoProviderMatchConstraintTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['system', 'user', 'text', 'media_entity', 'media_entity_embeddable_video'];
+  public static $modules = ['system', 'user'];
 
   /**
    * An array of regexes.
