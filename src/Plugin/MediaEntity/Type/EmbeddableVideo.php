@@ -55,6 +55,13 @@ class EmbeddableVideo extends MediaTypeBase implements EmbeddableVideoTypeInterf
   protected $videoProviders;
 
   /**
+   * Media entity embeddable video config object.
+   *
+   * @var \Drupal\Core\Config\Config
+   */
+  protected $moduleConfig;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
@@ -65,7 +72,8 @@ class EmbeddableVideo extends MediaTypeBase implements EmbeddableVideoTypeInterf
       $container->get('entity.manager'),
       $container->get('config.factory')->get('media_entity_embeddable_video.settings'),
       $container->get('http_client'),
-      $container->get('plugin.manager.media_entity_embeddable_video.provider')
+      $container->get('plugin.manager.media_entity_embeddable_video.provider'),
+      $container->get('config.factory')->get('media_entity_embeddable_video.settings')
     );
   }
 
@@ -86,11 +94,14 @@ class EmbeddableVideo extends MediaTypeBase implements EmbeddableVideoTypeInterf
    *   Http client.
    * @param \Drupal\media_entity_embeddable_video\VideoProviderManager $video_providers
    *   Video provider plugin manager.
+   * @param \Drupal\Core\Config\Config $config
+   *   Media entity embeddable video config object.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityManager $entity_manager, Config $config, Client $http_client, VideoProviderManager $video_providers) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityManager $entity_manager, Config $config, Client $http_client, VideoProviderManager $video_providers, Config $module_config) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_manager, $config);
     $this->httpClient = $http_client;
     $this->videoProviders = $video_providers;
+    $this->moduleConfig = $module_config;
   }
 
   /**
@@ -152,7 +163,7 @@ class EmbeddableVideo extends MediaTypeBase implements EmbeddableVideoTypeInterf
    *   URI of local copy of thumbnail.
    */
   protected function localThumbURI(VideoProviderInterface $provider) {
-    return $this->configuration->get('local_images') . '/' . $provider->id() . '_' . $provider->videoId() . '.jpg';
+    return $this->moduleConfig->get('local_images') . '/' . $provider->id() . '_' . $provider->videoId() . '.jpg';
   }
 
   /**
@@ -168,6 +179,7 @@ class EmbeddableVideo extends MediaTypeBase implements EmbeddableVideoTypeInterf
    */
   protected function downloadThumb(VideoProviderInterface $provider, $destination) {
     if ($thumb_uri = $provider->thumbnailURI()) {
+      file_prepare_directory(dirname($destination), FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
       file_unmanaged_save_data(file_get_contents($thumb_uri), $destination, FILE_EXISTS_REPLACE);
       return TRUE;
     }
@@ -226,7 +238,7 @@ class EmbeddableVideo extends MediaTypeBase implements EmbeddableVideoTypeInterf
    * {@inheritdoc}
    */
   public function thumbnail(MediaInterface $media) {
-    if ($local_image = $this->getField($media, 'local_image')) {
+    if ($local_image = $this->getField($media, 'image_local')) {
       return $local_image;
     }
 
