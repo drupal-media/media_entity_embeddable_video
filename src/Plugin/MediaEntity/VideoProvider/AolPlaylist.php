@@ -70,14 +70,16 @@ class Aol extends VideoProviderBase implements VideoProviderInterface {
    */
   public function thumbnailURI() {
     $response = $this->httpClient->get(
-      Url::fromUri('http://api.5min.com/video/list/info.xml'),
-      [
-       'query' => [
-         'sid' => $this->config->get('aol_sid'),
-         'restriction' => 'no_html',
-         'video_group_id' => $this->matches['id'],
+      Url::fromUri(
+        'http://api.5min.com/video/list/info.xml',
+        [
+          'query' => [
+            'sid' => $this->config->get('aol_sid'),
+            'restriction' => 'no_html',
+            'video_group_id' => $this->matches['id'],
+          ]
         ]
-      ]
+      )->toString()
     );
 
     if ($response->getStatusCode() == 200 && ($data = $response->getBody())) {
