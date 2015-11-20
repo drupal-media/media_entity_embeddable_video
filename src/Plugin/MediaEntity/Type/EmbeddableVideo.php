@@ -179,7 +179,8 @@ class EmbeddableVideo extends MediaTypeBase implements EmbeddableVideoTypeInterf
    */
   protected function downloadThumb(VideoProviderInterface $provider, $destination) {
     if ($thumb_uri = $provider->thumbnailURI()) {
-      file_prepare_directory(dirname($destination), FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
+      $dir = dirname($destination);
+      file_prepare_directory($dir, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
       file_unmanaged_save_data(file_get_contents($thumb_uri), $destination, FILE_EXISTS_REPLACE);
       return TRUE;
     }
