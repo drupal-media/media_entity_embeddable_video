@@ -18,12 +18,10 @@ use GuzzleHttp\Exception\ClientException;
  *   label = @Translation("YouTube"),
  *   description = @Translation("Provides embedding support for YouTube videos."),
  *   regular_expressions = {
- *     "@(?<protocol>http|https)://www\.youtube(?<cookie>-nocookie)?\.com/embed/(?<id>[a-z0-9_-]+)@i",
- *     "@(?<protocol>http|https)://www\.youtube(?<cookie>-nocookie)?\.com/v/(?<id>[a-z0-9_-]+)@i",
- *     "@(?<protocol>http|https)://www\.youtube(?<cookie>-nocookie)?\.com/watch\?v=(?<id>[a-z0-9_-]+)@i",
- *     "@//www\.youtube(?<cookie>-nocookie)?\.com/embed/(?<id>[a-z0-9_-]+)@i",
- *     "@//www\.youtube(?<cookie>-nocookie)?\.com/v/(?<id>[a-z0-9_-]+)@i",
- *     "@//www\.youtube(?<cookie>-nocookie)?\.com/watch\?v=(?<id>[a-z0-9_-]+)@i"
+ *     "@(?:(?<protocol>http|https):)?//(?:www\.)?youtube(?<cookie>-nocookie)?\.com/embed/(?<id>[a-z0-9_-]+)@i",
+ *     "@(?:(?<protocol>http|https):)?//(?:www\.)?youtube(?<cookie>-nocookie)?\.com/v/(?<id>[a-z0-9_-]+)@i",
+ *     "@(?:(?<protocol>http|https):)?//(?:www\.)?youtube(?<cookie>-nocookie)?\.com/watch\?v=(?<id>[a-z0-9_-]+)@i",
+ *     "@(?:(?<protocol>http|https):)?//youtu(?<cookie>-nocookie)?\.be/(?<id>[a-z0-9_-]+)@i"
  *   }
  * )
  */
