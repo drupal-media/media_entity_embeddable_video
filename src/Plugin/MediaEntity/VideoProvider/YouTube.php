@@ -8,7 +8,6 @@
 namespace Drupal\media_entity_embeddable_video\Plugin\MediaEntity\VideoProvider;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Url;
 use Drupal\media_entity_embeddable_video\VideoProviderBase;
 use Drupal\media_entity_embeddable_video\VideoProviderInterface;
 use GuzzleHttp\Client;
@@ -87,17 +86,14 @@ class YouTube extends VideoProviderBase implements VideoProviderInterface {
    * {@inheritdoc}
    */
   public function thumbnailURI() {
-    $options = [
-      'query' => [
-        'part' => 'snippet',
-        'id' => $this->matches['id'],
-        'key' => $this->apiKey,
-      ],
-    ];
-    $url = Url::fromUri('https://www.googleapis.com/youtube/v3/videos', $options)->toString();
-
-    $response = json_decode($this->httpClient->get($url)->getBody(), TRUE);
-    return $response['items'][0]['snippet']['thumbnails']['high']['url'];
+    if ($this->apiKey) {
+      $url = 'https://www.googleapis.com/youtube/v3/videos?part=snippet&id=' . $this->matches['id'] . '&key=' . $this->apiKey;
+      $response = json_decode($this->httpClient->get($url)->getBody(), TRUE);
+      return $response['items'][0]['snippet']['thumbnails']['high']['url'];
+    }
+    else {
+      return 'http://img.youtube.com/vi/[video_id]/hqdefault.jpg';
+    }
   }
 
   /**
