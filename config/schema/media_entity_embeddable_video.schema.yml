@@ -17,6 +17,13 @@ media_entity_embeddable_video.settings:
     wochit_progn:
       type: string
       label: 'Publisher information used by Wochit ("progn" argument in embed code)'
+    youtube:
+      type: mapping
+      label: 'YouTube'
+      mapping:
+        api_key:
+          type: string
+          label: 'API key'
 
 media_entity.bundle.type.embeddable_video:
   type: mapping

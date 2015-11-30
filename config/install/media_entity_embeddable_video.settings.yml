@@ -3,3 +3,5 @@ grab_from: ''
 grab_id: ''
 aol_sid: ''
 wochit_progn: ''
+youtube:
+  api_key: null
