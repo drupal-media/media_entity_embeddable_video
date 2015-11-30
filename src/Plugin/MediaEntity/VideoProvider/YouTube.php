@@ -8,9 +8,12 @@
 namespace Drupal\media_entity_embeddable_video\Plugin\MediaEntity\VideoProvider;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Logger\LoggerChannelInterface;
+use Drupal\Core\Url;
 use Drupal\media_entity_embeddable_video\VideoProviderBase;
 use Drupal\media_entity_embeddable_video\VideoProviderInterface;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -40,6 +43,13 @@ class YouTube extends VideoProviderBase implements VideoProviderInterface {
   protected $apiKey;
 
   /**
+   * The logger channel.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   */
+  protected $log;
+
+  /**
    * YouTube constructor.
    *
    * @param array $configuration
@@ -52,10 +62,13 @@ class YouTube extends VideoProviderBase implements VideoProviderInterface {
    *   The HTTP client.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
+   * @param \Drupal\Core\Logger\LoggerChannelInterface $log
+   *   The logger channel.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $http_client, ConfigFactoryInterface $config_factory) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $http_client, ConfigFactoryInterface $config_factory, LoggerChannelInterface $log) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $http_client);
     $this->apiKey = $config_factory->get('media_entity_embeddable_video.settings')->get('youtube.api_key');
+    $this->log = $log;
   }
 
   /**
@@ -67,7 +80,8 @@ class YouTube extends VideoProviderBase implements VideoProviderInterface {
       $plugin_id,
       $plugin_definition,
       $container->get('http_client'),
-      $container->get('config.factory')
+      $container->get('config.factory'),
+      $container->get('logger.factory')->get('media_entity')
     );
   }
 
@@ -86,13 +100,30 @@ class YouTube extends VideoProviderBase implements VideoProviderInterface {
    * {@inheritdoc}
    */
   public function thumbnailURI() {
+    $thumbnail = 'http://img.youtube.com/vi/[video_id]/hqdefault.jpg';
+
     if ($this->apiKey) {
-      $url = 'https://www.googleapis.com/youtube/v3/videos?part=snippet&id=' . $this->matches['id'] . '&key=' . $this->apiKey;
-      $response = json_decode($this->httpClient->get($url)->getBody(), TRUE);
-      return $response['items'][0]['snippet']['thumbnails']['high']['url'];
+      $options = [
+        'query' => [
+          'part' => 'snippet',
+          'id' => $this->matches['id'],
+          'key' => $this->apiKey,
+        ],
+      ];
+      $url = Url::fromUri('https://www.googleapis.com/youtube/v3/videos', $options)->toString();
+
+      try {
+        $response = $this->httpClient->get($url, ['http_errors' => TRUE]);
+        $response = json_decode($response->getBody(), TRUE);
+        return $response['items'][0]['snippet']['thumbnails']['high']['url'];
+      }
+      catch (ClientException $e) {
+        $this->log->error($e->getMessage());
+        return $thumbnail;
+      }
     }
     else {
-      return 'http://img.youtube.com/vi/[video_id]/hqdefault.jpg';
+      return $thumbnail;
     }
   }
 
