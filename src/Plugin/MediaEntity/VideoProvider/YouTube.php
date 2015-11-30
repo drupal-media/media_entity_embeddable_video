@@ -1,14 +1,20 @@
 <?php
 
 /**
+ * @file
  * Contains \Drupal\media_entity_embeddable_video\Plugin\MediaEntity\VideoProvider\YouTube.
  */
 
 namespace Drupal\media_entity_embeddable_video\Plugin\MediaEntity\VideoProvider;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Logger\LoggerChannelInterface;
+use Drupal\Core\Url;
 use Drupal\media_entity_embeddable_video\VideoProviderBase;
 use Drupal\media_entity_embeddable_video\VideoProviderInterface;
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides embedding support for YouTube videos.
@@ -28,6 +34,56 @@ use GuzzleHttp\Exception\ClientException;
 class YouTube extends VideoProviderBase implements VideoProviderInterface {
 
   /**
+   * Key used for accessing the YouTube API.
+   *
+   * @var string
+   */
+  protected $apiKey;
+
+  /**
+   * The logger channel.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   */
+  protected $log;
+
+  /**
+   * YouTube constructor.
+   *
+   * @param array $configuration
+   *   The plugin configuration.
+   * @param string $plugin_id
+   *   The plugin ID.
+   * @param mixed $plugin_definition
+   *   The plugin definition.
+   * @param \GuzzleHttp\Client $http_client
+   *   The HTTP client.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory.
+   * @param \Drupal\Core\Logger\LoggerChannelInterface $log
+   *   The logger channel.
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $http_client, ConfigFactoryInterface $config_factory, LoggerChannelInterface $log) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $http_client);
+    $this->apiKey = $config_factory->get('media_entity_embeddable_video.settings')->get('youtube.api_key');
+    $this->log = $log;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('http_client'),
+      $container->get('config.factory'),
+      $container->get('logger.factory')->get('media_entity')
+    );
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function defaultConfiguration() {
@@ -42,24 +98,31 @@ class YouTube extends VideoProviderBase implements VideoProviderInterface {
    * {@inheritdoc}
    */
   public function thumbnailURI() {
-    $maxres_thumb = 'http://img.youtube.com/vi/' . $this->matches['id'] . '/maxresdefault.jpg';
+    $thumbnail = 'http://img.youtube.com/vi/[video_id]/hqdefault.jpg';
 
-    try {
-      /** @var \GuzzleHttp\Client $response */
-      $this->httpClient->head($maxres_thumb);
-    }
-    catch (ClientException $e) {
-      $size = 0;
-      $xml = simplexml_load_file('http://gdata.youtube.com/feeds/api/videos/' . $this->matches['id']);
-      foreach ($xml->children('media', TRUE)->group->thumbnail as $thumb) {
-        if ($size < (int) $thumb->attributes()->width) {
-          $size = (int) $thumb->attributes()->width;
-          $maxres_thumb = (string) $thumb->attributes()->url;
-        }
+    if ($this->apiKey) {
+      $options = [
+        'query' => [
+          'part' => 'snippet',
+          'id' => $this->matches['id'],
+          'key' => $this->apiKey,
+        ],
+      ];
+      $url = Url::fromUri('https://www.googleapis.com/youtube/v3/videos', $options)->toString();
+
+      try {
+        $response = $this->httpClient->get($url, ['http_errors' => TRUE]);
+        $response = json_decode($response->getBody(), TRUE);
+        return $response['items'][0]['snippet']['thumbnails']['high']['url'];
+      }
+      catch (ClientException $e) {
+        $this->log->error($e->getMessage());
+        return $thumbnail;
       }
     }
-
-    return $maxres_thumb;
+    else {
+      return $thumbnail;
+    }
   }
 
   /**
