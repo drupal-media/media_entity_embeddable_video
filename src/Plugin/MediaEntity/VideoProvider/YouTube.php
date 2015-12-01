@@ -98,7 +98,7 @@ class YouTube extends VideoProviderBase implements VideoProviderInterface {
    * {@inheritdoc}
    */
   public function thumbnailURI() {
-    $thumbnail = 'http://img.youtube.com/vi/[video_id]/hqdefault.jpg';
+    $thumbnail = 'http://img.youtube.com/vi/' . $this->matches['id'] .'/hqdefault.jpg';
 
     if ($this->apiKey) {
       $options = [
