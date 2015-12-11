@@ -6,21 +6,17 @@
 
 namespace Drupal\media_entity_embeddable_video\Plugin\MediaEntity\Type;
 
-use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Config\Config;
 use Drupal\Core\Entity\EntityManager;
 use Drupal\media_entity\MediaTypeBase;
 use Drupal\media_entity_embeddable_video\EmbeddableVideoTypeInterface;
 use GuzzleHttp\Client;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\media_entity\MediaBundleInterface;
 use Drupal\media_entity\MediaInterface;
-use Drupal\media_entity\MediaTypeException;
-use Drupal\media_entity\MediaTypeInterface;
 use Drupal\media_entity_embeddable_video\VideoProviderInterface;
 use Drupal\media_entity_embeddable_video\VideoProviderManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Provides media type plugin for embedded videos.
@@ -191,23 +187,24 @@ class EmbeddableVideo extends MediaTypeBase implements EmbeddableVideoTypeInterf
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(MediaBundleInterface $bundle) {
-    $form = array();
-    $options = array();
-    $allowed_field_types = array('text', 'text_long', 'string', 'string_long', 'link');
-    foreach (\Drupal::entityManager()->getFieldDefinitions('media', $bundle->id()) as $field_name => $field) {
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+    /** @var MediaBundleInterface $bundle */
+    $bundle = $form_state->getFormObject()->getEntity();
+    $options = [];
+    $allowed_field_types = ['text', 'text_long', 'string', 'string_long', 'link'];
+    foreach ($this->entityManager->getFieldDefinitions('media', $bundle->id()) as $field_name => $field) {
       if (in_array($field->getType(), $allowed_field_types)) {
         $options[$field_name] = $field->getLabel();
       }
     }
 
-    $form['source_field'] = array(
+    $form['source_field'] = [
       '#type' => 'select',
       '#title' => t('Field with source information'),
       '#description' => t('Field on media entity that stores video embed code or URL.'),
       '#default_value' => empty($this->configuration['source_field']) ? NULL : $this->configuration['source_field'],
       '#options' => $options,
-    );
+    ];
 
     return $form;
   }
