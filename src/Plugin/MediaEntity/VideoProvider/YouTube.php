@@ -151,10 +151,12 @@ class YouTube extends VideoProviderBase implements VideoProviderInterface {
       $args['autoplay'] = 'true';
     }
 
-    $src .= '?' . implode('&', array_walk(
+    array_walk(
       $args,
       function (&$item, $key) {$item = $key . '=' . $item;}
-    ));
+    );
+
+    $src .= '?' . implode('&', $args);
 
     return [
       '#type' => 'html_tag',
