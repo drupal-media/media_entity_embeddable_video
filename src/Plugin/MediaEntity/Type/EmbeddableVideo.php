@@ -7,7 +7,8 @@
 namespace Drupal\media_entity_embeddable_video\Plugin\MediaEntity\Type;
 
 use Drupal\Core\Config\Config;
-use Drupal\Core\Entity\EntityManager;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\media_entity\MediaTypeBase;
 use Drupal\media_entity_embeddable_video\EmbeddableVideoTypeInterface;
 use GuzzleHttp\Client;
@@ -65,7 +66,8 @@ class EmbeddableVideo extends MediaTypeBase implements EmbeddableVideoTypeInterf
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity.manager'),
+      $container->get('entity_type.manager'),
+      $container->get('entity_field.manager'),
       $container->get('config.factory')->get('media_entity_embeddable_video.settings'),
       $container->get('http_client'),
       $container->get('plugin.manager.media_entity_embeddable_video.provider'),
@@ -82,19 +84,21 @@ class EmbeddableVideo extends MediaTypeBase implements EmbeddableVideoTypeInterf
    *   The plugin_id for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\Core\Entity\EntityManager $entity_manager
-   *   Entity manager service.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   Entity type manager service.
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   *   Entity field manager service.
    * @param \Drupal\Core\Config\Config $config
    *   Media entity config object.
    * @param \GuzzleHttp\Client $http_client
    *   Http client.
    * @param \Drupal\media_entity_embeddable_video\VideoProviderManager $video_providers
    *   Video provider plugin manager.
-   * @param \Drupal\Core\Config\Config $config
+   * @param \Drupal\Core\Config\Config $module_config
    *   Media entity embeddable video config object.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityManager $entity_manager, Config $config, Client $http_client, VideoProviderManager $video_providers, Config $module_config) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_manager, $config);
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager, Config $config, Client $http_client, VideoProviderManager $video_providers, Config $module_config) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_type_manager, $entity_field_manager, $config);
     $this->httpClient = $http_client;
     $this->videoProviders = $video_providers;
     $this->moduleConfig = $module_config;
@@ -192,7 +196,7 @@ class EmbeddableVideo extends MediaTypeBase implements EmbeddableVideoTypeInterf
     $bundle = $form_state->getFormObject()->getEntity();
     $options = [];
     $allowed_field_types = ['text', 'text_long', 'string', 'string_long', 'link'];
-    foreach ($this->entityManager->getFieldDefinitions('media', $bundle->id()) as $field_name => $field) {
+    foreach ($this->entityFieldManager->getFieldDefinitions('media', $bundle->id()) as $field_name => $field) {
       if (in_array($field->getType(), $allowed_field_types)) {
         $options[$field_name] = $field->getLabel();
       }
