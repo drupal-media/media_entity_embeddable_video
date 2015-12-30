@@ -6,10 +6,13 @@
 
 namespace Drupal\media_entity_embeddable_video\Plugin\MediaEntity\VideoProvider;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Url;
 use Drupal\media_entity_embeddable_video\VideoProviderBase;
 use Drupal\media_entity_embeddable_video\VideoProviderInterface;
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides embedding support for Vimeo videos.
@@ -27,6 +30,45 @@ use GuzzleHttp\Exception\ClientException;
 class Vimeo extends VideoProviderBase implements VideoProviderInterface {
 
   /**
+   * Access token used for accessing the Vimeo API.
+   *
+   * @var string
+   */
+  protected $accessToken;
+
+  /**
+   * Vimeo constructor.
+   *
+   * @param array $configuration
+   *   The plugin configuration.
+   * @param string $plugin_id
+   *   The plugin ID.
+   * @param mixed $plugin_definition
+   *   The plugin definition.
+   * @param \GuzzleHttp\Client $http_client
+   *   The HTTP client.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory.
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, Client $http_client, ConfigFactoryInterface $config_factory) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $http_client);
+    $this->accessToken = $config_factory->get('media_entity_embeddable_video.settings')->get('vimeo.access_token');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('http_client'),
+      $container->get('config.factory')
+    );
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function defaultConfiguration() {
@@ -42,8 +84,8 @@ class Vimeo extends VideoProviderBase implements VideoProviderInterface {
    */
   public function thumbnailURI() {
     $headers = [];
-    if ($token = \Drupal::config('media_entity_embeddable_video.settings')->get('vimeo.access_token')) {
-      $headers['Authorization'] = 'bearer ' . $token;
+    if (!empty($this->accessToken)) {
+      $headers['Authorization'] = 'bearer ' . $this->accessToken;
     }
     $response = $this->httpClient->get(
       Url::fromUri(
