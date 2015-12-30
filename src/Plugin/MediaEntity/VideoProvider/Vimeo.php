@@ -41,19 +41,19 @@ class Vimeo extends VideoProviderBase implements VideoProviderInterface {
    * {@inheritdoc}
    */
   public function thumbnailURI() {
+    $headers = [];
+    if ($token = \Drupal::config('media_entity_embeddable_video.settings')->get('vimeo.app_access_token')) {
+      $headers['Authorization'] = 'bearer ' . $token;
+    }
     $response = $this->httpClient->get(
       Url::fromUri(
-        'http://vimeo.com/api/v2/video/' . $this->matches['id'] . '.json?callback=showThumb'
-      )->toString()
+        'https://api.vimeo.com/videos/' . $this->matches['id'] . '/pictures'
+      )->toString(),
+      [ 'headers' => $headers ]
     );
-
     if ($response->getStatusCode() == 200 && ($data = $response->getBody())) {
-      $data = preg_replace('/^\/\*\*\/showThumb\(\[/', '', $data);
-      $data = preg_replace('/\]\)/', '', $data);
-      $data = json_decode($data);
-      return $data->thumbnail_medium;
+      return json_decode($data)->data[0]->sizes[4]->link; // 960x720
     }
-
     return FALSE;
   }
 
