@@ -75,7 +75,7 @@ class Vimeo extends VideoProviderBase implements VideoProviderInterface {
     return [
       'width' => '640',
       'height' => '480',
-      'fullscreen' => TRUE,
+      'allowfullscreen' => TRUE,
     ];
   }
 
@@ -112,9 +112,9 @@ class Vimeo extends VideoProviderBase implements VideoProviderInterface {
         'src' => '//player.vimeo.com/video/' . $this->matches['id'],
         'width' => $this->configuration['width'],
         'height' => $this->configuration['height'],
-        'mozallowfullscreen' => $this->configuration['fullscreen'],
-        'webkitallowfullscreen' => $this->configuration['fullscreen'],
-        'allowfullscreen' => $this->configuration['fullscreen']
+        'mozallowfullscreen' => $this->configuration['allowfullscreen'],
+        'webkitallowfullscreen' => $this->configuration['allowfullscreen'],
+        'allowfullscreen' => $this->configuration['allowfullscreen']
       ],
     ];
   }
