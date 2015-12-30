@@ -94,7 +94,9 @@ class Vimeo extends VideoProviderBase implements VideoProviderInterface {
       [ 'headers' => $headers ]
     );
     if ($response->getStatusCode() == 200 && ($data = $response->getBody())) {
-      return json_decode($data)->data[0]->sizes[4]->link; // 960x720
+      $sizes = json_decode($data)->data[0]->sizes;
+      $largest = count($sizes) - 1;
+      return $sizes[$largest]->link;
     }
     return FALSE;
   }
