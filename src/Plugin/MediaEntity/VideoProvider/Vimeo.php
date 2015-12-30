@@ -42,7 +42,7 @@ class Vimeo extends VideoProviderBase implements VideoProviderInterface {
    */
   public function thumbnailURI() {
     $headers = [];
-    if ($token = \Drupal::config('media_entity_embeddable_video.settings')->get('vimeo.app_access_token')) {
+    if ($token = \Drupal::config('media_entity_embeddable_video.settings')->get('vimeo.access_token')) {
       $headers['Authorization'] = 'bearer ' . $token;
     }
     $response = $this->httpClient->get(
