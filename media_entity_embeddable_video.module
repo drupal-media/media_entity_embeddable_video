@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * @file
+ * Provides functionality for embeddable videos in media entities.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\media_entity\Entity\MediaBundle;
+
+/**
+ * Implements hook_entity_extra_field_info().
+ */
+function media_entity_embeddable_video_entity_extra_field_info() {
+  $fields = [];
+  foreach (MediaBundle::loadMultiple() as $bundle) {
+    if ($bundle->getType()->getPluginId() == 'embeddable_video') {
+      $fields['media'][$bundle->id()]['display']['rendered_video'] = [
+        'label' => t('Rendered Video'),
+        'description' => t('The rendered video for embedding.'),
+        'weight' => 100,
+        'visible' => TRUE,
+      ];
+    }
+  }
+
+  return $fields;
+}
+
+/**
+ * Implements hook_entity_extra_field_info().
+ */
+function media_entity_embeddable_video_media_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  //if ($entity)
+  if ($display->getComponent('rendered_video')) {
+    $build['rendered_video'] = $entity->getType()->matchProvider($entity)->render();
+  }
+}
