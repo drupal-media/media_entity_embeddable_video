@@ -32,7 +32,6 @@ function media_entity_embeddable_video_entity_extra_field_info() {
  * Implements hook_entity_extra_field_info().
  */
 function media_entity_embeddable_video_media_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
-  //if ($entity)
   if ($display->getComponent('rendered_video')) {
     $build['rendered_video'] = $entity->getType()->matchProvider($entity)->render();
   }
