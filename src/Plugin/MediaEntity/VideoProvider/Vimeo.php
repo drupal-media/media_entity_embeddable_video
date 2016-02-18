@@ -87,16 +87,21 @@ class Vimeo extends VideoProviderBase implements VideoProviderInterface {
     if (!empty($this->accessToken)) {
       $headers['Authorization'] = 'bearer ' . $this->accessToken;
     }
-    $response = $this->httpClient->get(
-      Url::fromUri(
-        'https://api.vimeo.com/videos/' . $this->matches['id'] . '/pictures'
-      )->toString(),
-      [ 'headers' => $headers ]
-    );
-    if ($response->getStatusCode() == 200 && ($data = $response->getBody())) {
-      $sizes = json_decode($data)->data[0]->sizes;
-      $largest = count($sizes) - 1;
-      return $sizes[$largest]->link;
+    try {
+      $response = $this->httpClient->get(
+        Url::fromUri(
+          'https://api.vimeo.com/videos/' . $this->matches['id'] . '/pictures'
+        )->toString(),
+        [ 'headers' => $headers ]
+      );
+      if ($response->getStatusCode() == 200 && ($data = $response->getBody())) {
+        $sizes = json_decode($data)->data[0]->sizes;
+        $largest = count($sizes) - 1;
+        return $sizes[$largest]->link;
+      }
+    }
+    catch (ClientException $e) {
+      // ...
     }
     return FALSE;
   }
