@@ -101,7 +101,7 @@ install:
   - drupal-ti install
 
 before_script:
-  - DRUPAL_TI_MODULE_NAME='media_entity' drupal-ti drupal_ti_ensure_module
+  - drupal-ti drupal_ti_ensure_module
   - drupal-ti before_script
 
 script:
