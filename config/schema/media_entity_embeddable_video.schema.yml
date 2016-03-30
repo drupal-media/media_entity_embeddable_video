@@ -24,6 +24,13 @@ media_entity_embeddable_video.settings:
         api_key:
           type: string
           label: 'API key'
+    vimeo:
+      type: mapping
+      label: 'Vimeo'
+      mapping:
+      access_token:
+          type: string
+          label: 'Application API access token'
 
 media_entity.bundle.type.embeddable_video:
   type: mapping
